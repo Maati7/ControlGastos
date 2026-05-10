@@ -1,515 +1,155 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Mis Gastos</title>
+  <link rel="apple-touch-icon" id="appIcon">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --coral: #D85A30; --coral-light: #FAECE7; --coral-mid: #F0997B;
+      --coral: #D85A30; --coral-light: #FAECE7;
       --teal: #1D9E75; --teal-light: #E1F5EE;
       --amber: #BA7517; --amber-light: #FAEEDA;
-      --purple: #534AB7; --purple-light: #EEEDFE; --purple-mid: #AFA9EC;
+      --purple: #534AB7; --purple-light: #EEEDFE;
       --green: #639922; --green-light: #EAF3DE;
       --blue: #185FA5; --blue-light: #E6F1FB;
       --pink: #993556; --pink-light: #FBEAF0;
-      --bg: #F5F4F0;
-      --surface: #FFFFFF;
+      --bg: #F5F4F0; --surface: #FFFFFF;
       --border: rgba(0,0,0,0.1);
-      --text: #1a1a1a;
-      --text-sec: #666;
-      --text-ter: #aaa;
+      --text: #1a1a1a; --text-sec: #666; --text-ter: #aaa;
     }
+    html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px; -webkit-font-smoothing:antialiased; }
+    .app { max-width:480px; margin:0 auto; padding:0 0 100px; min-height:100vh; }
 
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      -webkit-font-smoothing: antialiased;
-    }
+```
+/* Topbar */
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 12px; background:var(--bg); position:sticky; top:0; z-index:10; }
+.topbar h1 { font-size:22px; font-weight:600; letter-spacing:-0.5px; }
+.month-nav { display:flex; align-items:center; gap:6px; }
+.month-nav button { background:var(--surface); border:1px solid var(--border); border-radius:8px; width:32px; height:32px; font-size:16px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
+.month-nav button:active { opacity:0.7; }
+.month-nav span { font-size:13px; font-weight:500; min-width:90px; text-align:center; color:var(--text-sec); }
 
-    .app {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 0 0 100px;
-      min-height: 100vh;
-    }
+/* Balance card */
+.balance-card { margin:0 16px 14px; border-radius:20px; padding:22px 22px 20px; background:linear-gradient(135deg,#534AB7 0%,#7F77DD 100%); position:relative; overflow:hidden; }
+.balance-card .deco { position:absolute; right:-24px; top:-24px; width:110px; height:110px; border-radius:50%; background:rgba(255,255,255,0.09); }
+.balance-card .deco2 { position:absolute; right:36px; top:36px; width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.06); }
+.balance-card .label { font-size:11px; color:rgba(255,255,255,0.7); font-weight:500; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.balance-card .amount { font-family:'Space Mono',monospace; font-size:34px; font-weight:700; color:#fff; letter-spacing:-1px; }
+.balance-card .sub { font-size:13px; color:rgba(255,255,255,0.65); margin-top:6px; }
 
-    /* Header */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 20px 20px 12px;
-      background: var(--bg);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    .topbar h1 {
-      font-size: 22px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-    .month-nav {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .month-nav button {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      width: 32px;
-      height: 32px;
-      font-size: 16px;
-      cursor: pointer;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .month-nav button:active { opacity: 0.7; }
-    .month-nav span {
-      font-size: 13px;
-      font-weight: 500;
-      min-width: 90px;
-      text-align: center;
-      color: var(--text-sec);
-    }
+/* Stats */
+.stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 16px 14px; }
+.stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 16px; }
+.stat-card .s-label { font-size:12px; color:var(--text-sec); margin-bottom:4px; }
+.stat-card .s-val { font-family:'Space Mono',monospace; font-size:18px; font-weight:700; }
+.stat-card.income .s-val { color:var(--teal); }
+.stat-card.expense .s-val { color:var(--coral); }
 
-    /* Balance card */
-    .balance-card {
-      margin: 0 16px 14px;
-      border-radius: 20px;
-      padding: 22px 22px 20px;
-      background: linear-gradient(135deg, #534AB7 0%, #7F77DD 100%);
-      position: relative;
-      overflow: hidden;
-    }
-    .balance-card .deco {
-      position: absolute; right: -24px; top: -24px;
-      width: 110px; height: 110px; border-radius: 50%;
-      background: rgba(255,255,255,0.09);
-    }
-    .balance-card .deco2 {
-      position: absolute; right: 36px; top: 36px;
-      width: 64px; height: 64px; border-radius: 50%;
-      background: rgba(255,255,255,0.06);
-    }
-    .balance-card .label {
-      font-size: 11px;
-      color: rgba(255,255,255,0.7);
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
-    }
-    .balance-card .amount {
-      font-family: 'Space Mono', monospace;
-      font-size: 34px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -1px;
-    }
-    .balance-card .sub {
-      font-size: 13px;
-      color: rgba(255,255,255,0.65);
-      margin-top: 6px;
-    }
+/* Barras */
+.bar-wrap { margin:0 16px 14px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px 18px; display:none; }
+.bar-title { font-size:12px; font-weight:500; color:var(--text-sec); text-transform:uppercase; letter-spacing:0.7px; margin-bottom:12px; }
+.bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.bar-label { font-size:12px; min-width:76px; color:var(--text-sec); }
+.bar-track { flex:1; height:8px; background:#f0eeea; border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; transition:width 0.4s ease; }
+.bar-val { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; min-width:54px; text-align:right; }
 
-    /* Stats */
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin: 0 16px 14px;
-    }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 14px 16px;
-    }
-    .stat-card .s-label {
-      font-size: 12px;
-      color: var(--text-sec);
-      margin-bottom: 4px;
-    }
-    .stat-card .s-val {
-      font-family: 'Space Mono', monospace;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    .stat-card.income .s-val { color: var(--teal); }
-    .stat-card.expense .s-val { color: var(--coral); }
+/* Formulario */
+.add-form { margin:0 16px 14px; background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; overflow:hidden; }
+.type-toggle { display:flex; gap:8px; margin-bottom:12px; }
+.type-btn { flex:1; padding:10px; border-radius:10px; border:1px solid var(--border); background:none; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500; cursor:pointer; color:var(--text-sec); transition:all 0.15s; -webkit-tap-highlight-color:transparent; }
+.type-btn.active-expense { background:var(--coral-light); color:var(--coral); border-color:var(--coral); }
+.type-btn.active-income { background:var(--teal-light); color:var(--teal); border-color:var(--teal); }
+.form-row { display:flex; gap:8px; margin-bottom:12px; width:100%; min-width:0; }
+.form-row input { flex:1; min-width:0; border:1px solid var(--border); border-radius:10px; padding:12px 14px; font-size:15px; font-family:'DM Sans',sans-serif; background:#fafaf8; color:var(--text); outline:none; -webkit-appearance:none; width:0; }
+.form-row input#amountInput { flex:0 0 110px; width:110px; }
+.form-row input#descInput { flex:1; width:0; }
+.form-row input:focus { border-color:var(--purple); background:#fff; }
+.form-row input::placeholder { color:var(--text-ter); }
+.cat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; margin-bottom:12px; }
+.cat-pill { border-radius:10px; padding:10px 4px; text-align:center; cursor:pointer; border:2px solid transparent; transition:transform 0.15s; -webkit-tap-highlight-color:transparent; background:#f5f4f0; }
+.cat-pill:active { transform:scale(0.95); }
+.cat-pill.active { border-color:currentColor; background:var(--pill-bg,#f5f4f0); }
+.cat-pill .cat-icon { font-size:20px; display:block; margin-bottom:3px; line-height:1.2; }
+.cat-pill .cat-name { font-size:10px; font-weight:500; display:block; }
+.add-btn { width:100%; padding:14px; border-radius:12px; border:none; background:var(--purple); color:#fff; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; -webkit-tap-highlight-color:transparent; transition:opacity 0.15s; }
+.add-btn:active { opacity:0.82; }
 
-    /* Barras por categoría */
-    .bar-wrap {
-      margin: 0 16px 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px 18px;
-      display: none;
-    }
-    .bar-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-sec);
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      margin-bottom: 12px;
-    }
-    .bar-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-    .bar-label { font-size: 12px; min-width: 76px; color: var(--text-sec); }
-    .bar-track { flex: 1; height: 8px; background: #f0eeea; border-radius: 4px; overflow: hidden; }
-    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
-    .bar-val { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; min-width: 54px; text-align: right; }
+/* Historial */
+.history { margin:0 16px; background:var(--surface); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+.history-header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 12px; border-bottom:1px solid var(--border); }
+.history-header span { font-size:14px; font-weight:500; }
+.filters { display:flex; gap:6px; }
+.filter-btn { background:none; border:1px solid var(--border); border-radius:8px; padding:5px 10px; font-size:12px; cursor:pointer; color:var(--text-sec); font-family:'DM Sans',sans-serif; -webkit-tap-highlight-color:transparent; }
+.filter-btn.on { background:var(--purple-light); color:var(--purple); border-color:var(--purple); }
+.tx-item { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid var(--border); }
+.tx-item:last-child { border-bottom:none; }
+.tx-icon { width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+.tx-info { flex:1; min-width:0; }
+.tx-desc { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tx-meta { font-size:12px; color:var(--text-sec); margin-top:2px; }
+.tx-amount { font-family:'Space Mono',monospace; font-size:14px; font-weight:700; flex-shrink:0; }
+.tx-amount.neg { color:var(--coral); }
+.tx-amount.pos { color:var(--teal); }
+.tx-actions { display:flex; gap:2px; flex-shrink:0; }
+.tx-edit, .tx-del { background:none; border:none; cursor:pointer; font-size:15px; padding:6px; border-radius:6px; -webkit-tap-highlight-color:transparent; flex-shrink:0; line-height:1; color:var(--text-ter); }
+.tx-edit:active { color:var(--purple); }
+.tx-del:active { color:var(--coral); }
+.empty { text-align:center; padding:32px 20px; color:var(--text-ter); font-size:14px; }
+.empty span { display:block; font-size:28px; margin-bottom:8px; }
 
-    /* =====================
-       FIX 1: Formulario - input descripción contenido
-    ===================== */
-    .add-form {
-      margin: 0 16px 14px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      /* Asegura que nada se salga */
-      overflow: hidden;
-    }
-    .type-toggle {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-    .type-btn {
-      flex: 1;
-      padding: 10px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: none;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      color: var(--text-sec);
-      transition: all 0.15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .type-btn.active-expense { background: var(--coral-light); color: var(--coral); border-color: var(--coral); }
-    .type-btn.active-income { background: var(--teal-light); color: var(--teal); border-color: var(--teal); }
+/* Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:100; align-items:flex-end; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border-radius:22px 22px 0 0; padding:24px 20px 40px; width:100%; max-width:480px; animation:slideUp 0.25s ease; }
+@keyframes slideUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+.modal-title { font-size:16px; font-weight:600; margin-bottom:18px; text-align:center; }
+.modal-field { margin-bottom:14px; }
+.modal-field label { display:block; font-size:12px; font-weight:500; color:var(--text-sec); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px; }
+.modal-field input { width:100%; border:1px solid var(--border); border-radius:10px; padding:12px 14px; font-size:15px; font-family:'DM Sans',sans-serif; background:#fafaf8; color:var(--text); outline:none; -webkit-appearance:none; }
+.modal-field input:focus { border-color:var(--purple); background:#fff; }
+.emoji-picker { display:grid; grid-template-columns:repeat(8,1fr); gap:6px; margin-top:6px; }
+.emoji-opt { font-size:22px; text-align:center; padding:6px 2px; border-radius:8px; cursor:pointer; border:2px solid transparent; -webkit-tap-highlight-color:transparent; transition:transform 0.1s; background:#f5f4f0; }
+.emoji-opt:active { transform:scale(0.88); }
+.emoji-opt.selected { border-color:var(--purple); background:var(--purple-light); }
+.modal-custom-emoji { margin-top:10px; }
+.modal-custom-emoji label { font-size:12px; font-weight:500; color:var(--text-sec); display:block; margin-bottom:5px; text-transform:uppercase; letter-spacing:0.5px; }
+.modal-custom-emoji input { width:100%; border:1px solid var(--border); border-radius:10px; padding:10px 14px; font-size:22px; font-family:'DM Sans',sans-serif; background:#fafaf8; color:var(--text); outline:none; text-align:center; letter-spacing:4px; }
+.modal-custom-emoji input:focus { border-color:var(--purple); }
+.modal-btns { display:flex; gap:10px; margin-top:20px; }
+.modal-cancel { flex:1; padding:13px; border-radius:12px; border:1px solid var(--border); background:none; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; color:var(--text-sec); }
+.modal-save { flex:2; padding:13px; border-radius:12px; border:none; background:var(--purple); color:#fff; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
+.modal-save:active { opacity:0.85; }
 
-    /* FIX: La fila de inputs ahora apila en mobile para no desbordar */
-    .form-row {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-      width: 100%;         /* ← nuevo */
-      min-width: 0;        /* ← nuevo */
-    }
-    .form-row input {
-      /* FIX clave: min-width:0 permite que flex shrink funcione */
-      flex: 1;
-      min-width: 0;        /* ← nuevo */
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      background: #fafaf8;
-      color: var(--text);
-      outline: none;
-      -webkit-appearance: none;
-      appearance: none;
-      /* Evita que el texto desborde visualmente */
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 0;            /* ← junto con flex:1 fuerza distribución justa */
-    }
-    /* El campo de monto es más angosto */
-    .form-row input#amountInput {
-      flex: 0 0 110px;
-      width: 110px;
-      min-width: 0;
-    }
-    .form-row input#descInput {
-      flex: 1;
-      width: 0;
-    }
-    .form-row input:focus { border-color: var(--purple); background: #fff; }
-    .form-row input::placeholder { color: var(--text-ter); }
+/* Botón backup */
+.backup-bar { margin:0 16px 14px; display:flex; gap:8px; }
+.backup-btn { flex:1; padding:12px; border-radius:12px; border:1px solid var(--border); background:var(--surface); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; cursor:pointer; color:var(--text-sec); -webkit-tap-highlight-color:transparent; display:flex; align-items:center; justify-content:center; gap:6px; }
+.backup-btn:active { opacity:0.7; }
+.backup-btn.restore { color:var(--teal); border-color:var(--teal); }
 
-    .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-      margin-bottom: 12px;
-    }
-    .cat-pill {
-      border-radius: 10px;
-      padding: 10px 4px;
-      text-align: center;
-      cursor: pointer;
-      border: 2px solid transparent;
-      transition: transform 0.15s;
-      -webkit-tap-highlight-color: transparent;
-      background: #f5f4f0;
-    }
-    .cat-pill:active { transform: scale(0.95); }
-    .cat-pill.active { border-color: currentColor; background: var(--pill-bg, #f5f4f0); }
-    .cat-pill .cat-icon { font-size: 20px; display: block; margin-bottom: 3px; line-height: 1.2; }
-    .cat-pill .cat-name { font-size: 10px; font-weight: 500; display: block; }
+/* Modal confirmar eliminar */
+.confirm-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:200; align-items:center; justify-content:center; padding:20px; }
+.confirm-overlay.open { display:flex; }
+.confirm-box { background:var(--surface); border-radius:18px; padding:24px 20px; width:100%; max-width:320px; text-align:center; animation:slideUp 0.2s ease; }
+.confirm-box p { font-size:15px; color:var(--text); margin-bottom:20px; line-height:1.4; }
+.confirm-btns { display:flex; gap:10px; }
+.confirm-cancel { flex:1; padding:13px; border-radius:12px; border:1px solid var(--border); background:none; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500; cursor:pointer; color:var(--text-sec); }
+.confirm-ok { flex:1; padding:13px; border-radius:12px; border:none; background:var(--coral); color:#fff; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; cursor:pointer; }
 
-    .add-btn {
-      width: 100%;
-      padding: 14px;
-      border-radius: 12px;
-      border: none;
-      background: var(--purple);
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      transition: opacity 0.15s;
-    }
-    .add-btn:active { opacity: 0.82; }
+/* Toast */
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:#1a1a1a; color:#fff; padding:12px 20px; border-radius:12px; font-size:14px; opacity:0; transition:all 0.3s ease; z-index:300; white-space:nowrap; pointer-events:none; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+```
 
-    /* Historial */
-    .history {
-      margin: 0 16px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-    .history-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 16px 12px;
-      border-bottom: 1px solid var(--border);
-    }
-    .history-header span { font-size: 14px; font-weight: 500; }
-    .filters { display: flex; gap: 6px; }
-    .filter-btn {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 5px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      color: var(--text-sec);
-      font-family: 'DM Sans', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .filter-btn.on { background: var(--purple-light); color: var(--purple); border-color: var(--purple); }
-
-    .tx-list { }
-    .tx-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 13px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    .tx-item:last-child { border-bottom: none; }
-    .tx-icon {
-      width: 38px; height: 38px;
-      border-radius: 11px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .tx-info { flex: 1; min-width: 0; }
-    .tx-desc { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tx-meta { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
-    .tx-amount { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; flex-shrink: 0; }
-    .tx-amount.neg { color: var(--coral); }
-    .tx-amount.pos { color: var(--teal); }
-
-    /* FIX 2: Botones de acción en cada transacción */
-    .tx-actions {
-      display: flex;
-      gap: 2px;
-      flex-shrink: 0;
-    }
-    .tx-edit, .tx-del {
-      background: none; border: none; cursor: pointer;
-      font-size: 15px;
-      padding: 6px; border-radius: 6px;
-      -webkit-tap-highlight-color: transparent;
-      flex-shrink: 0;
-      line-height: 1;
-    }
-    .tx-edit { color: var(--text-ter); }
-    .tx-edit:active { color: var(--purple); }
-    .tx-del { color: var(--text-ter); }
-    .tx-del:active { color: var(--coral); }
-
-    /* Modal de edición */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 100;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-overlay.open {
-      display: flex;
-    }
-    .modal {
-      background: var(--surface);
-      border-radius: 22px 22px 0 0;
-      padding: 24px 20px 40px;
-      width: 100%;
-      max-width: 480px;
-      animation: slideUp 0.25s ease;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); opacity: 0; }
-      to   { transform: translateY(0);    opacity: 1; }
-    }
-    .modal-title {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 18px;
-      text-align: center;
-    }
-    .modal-field {
-      margin-bottom: 14px;
-    }
-    .modal-field label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-sec);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .modal-field input {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-size: 15px;
-      font-family: 'DM Sans', sans-serif;
-      background: #fafaf8;
-      color: var(--text);
-      outline: none;
-      -webkit-appearance: none;
-    }
-    .modal-field input:focus { border-color: var(--purple); background: #fff; }
-
-    /* Picker de emoji */
-    .emoji-picker {
-      display: grid;
-      grid-template-columns: repeat(8, 1fr);
-      gap: 6px;
-      margin-top: 6px;
-    }
-    .emoji-opt {
-      font-size: 22px;
-      text-align: center;
-      padding: 6px 2px;
-      border-radius: 8px;
-      cursor: pointer;
-      border: 2px solid transparent;
-      -webkit-tap-highlight-color: transparent;
-      transition: transform 0.1s;
-      background: #f5f4f0;
-    }
-    .emoji-opt:active { transform: scale(0.88); }
-    .emoji-opt.selected { border-color: var(--purple); background: var(--purple-light); }
-
-    .modal-custom-emoji {
-      margin-top: 10px;
-    }
-    .modal-custom-emoji label {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text-sec);
-      display: block;
-      margin-bottom: 5px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .modal-custom-emoji input {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 14px;
-      font-size: 22px;
-      font-family: 'DM Sans', sans-serif;
-      background: #fafaf8;
-      color: var(--text);
-      outline: none;
-      text-align: center;
-      letter-spacing: 4px;
-    }
-    .modal-custom-emoji input:focus { border-color: var(--purple); }
-
-    .modal-btns {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .modal-cancel {
-      flex: 1;
-      padding: 13px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: none;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      color: var(--text-sec);
-    }
-    .modal-save {
-      flex: 2;
-      padding: 13px;
-      border-radius: 12px;
-      border: none;
-      background: var(--purple);
-      color: #fff;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .modal-save:active { opacity: 0.85; }
-
-    .empty {
-      text-align: center;
-      padding: 32px 20px;
-      color: var(--text-ter);
-      font-size: 14px;
-    }
-    .empty span { display: block; font-size: 28px; margin-bottom: 8px; }
   </style>
 </head>
 <body>
 <div class="app">
-
   <div class="topbar">
     <h1>Mis Gastos</h1>
     <div class="month-nav">
@@ -520,22 +160,15 @@
   </div>
 
   <div class="balance-card">
-    <div class="deco"></div>
-    <div class="deco2"></div>
+    <div class="deco"></div><div class="deco2"></div>
     <div class="label">Balance del mes</div>
     <div class="amount" id="balanceAmt">$0</div>
     <div class="sub" id="balanceSub">Sin movimientos aún</div>
   </div>
 
   <div class="stats">
-    <div class="stat-card income">
-      <div class="s-label">Ingresos</div>
-      <div class="s-val" id="totalIncome">$0</div>
-    </div>
-    <div class="stat-card expense">
-      <div class="s-label">Gastos</div>
-      <div class="s-val" id="totalExpense">$0</div>
-    </div>
+    <div class="stat-card income"><div class="s-label">Ingresos</div><div class="s-val" id="totalIncome">$0</div></div>
+    <div class="stat-card expense"><div class="s-label">Gastos</div><div class="s-val" id="totalExpense">$0</div></div>
   </div>
 
   <div class="bar-wrap" id="catBreakdown">
@@ -556,6 +189,12 @@
     <button class="add-btn" onclick="addTransaction()">Agregar</button>
   </div>
 
+  <div class="backup-bar">
+    <button class="backup-btn" onclick="exportBackup()">💾 Guardar backup</button>
+    <button class="backup-btn restore" onclick="document.getElementById('restoreFile').click()">📂 Restaurar</button>
+    <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(event)">
+  </div>
+
   <div class="history">
     <div class="history-header">
       <span>Historial</span>
@@ -567,19 +206,21 @@
     </div>
     <div class="tx-list" id="txList"></div>
   </div>
-
 </div>
 
-<!-- Modal de edición -->
+<!-- Modal edición -->
+
 <div class="modal-overlay" id="editModal" onclick="closeModal(event)">
   <div class="modal">
     <div class="modal-title">Editar movimiento</div>
-
+    <div class="modal-field">
+      <label>Monto</label>
+      <input type="number" id="editAmount" inputmode="decimal" min="0" step="0.01" placeholder="0">
+    </div>
     <div class="modal-field">
       <label>Descripción</label>
-      <input type="text" id="editDesc" placeholder="Descripción del movimiento">
+      <input type="text" id="editDesc" placeholder="Descripción">
     </div>
-
     <div class="modal-field">
       <label>Emoji</label>
       <div class="emoji-picker" id="emojiPicker"></div>
@@ -588,7 +229,6 @@
         <input type="text" id="editCustomEmoji" placeholder="😊" maxlength="4">
       </div>
     </div>
-
     <div class="modal-btns">
       <button class="modal-cancel" onclick="closeModalDirect()">Cancelar</button>
       <button class="modal-save" onclick="saveEdit()">Guardar</button>
@@ -596,25 +236,37 @@
   </div>
 </div>
 
+<!-- Modal confirmar eliminar -->
+
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <p>¿Eliminar este movimiento?</p>
+    <div class="confirm-btns">
+      <button class="confirm-cancel" onclick="cancelDelete()">Cancelar</button>
+      <button class="confirm-ok" onclick="confirmDelete()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+
+<div class="toast" id="toast"></div>
+
 <script>
+// Inyectar ícono inline
+document.getElementById('appIcon').href = 'data:image/png;base64,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';
+
 const CATS = [
-  {id:'food',    name:'Comida',      icon:'🍔', color:'#D85A30', bg:'#FAECE7'},
-  {id:'transport',name:'Transporte', icon:'🚌', color:'#BA7517', bg:'#FAEEDA'},
-  {id:'home',    name:'Hogar',       icon:'🏠', color:'#185FA5', bg:'#E6F1FB'},
-  {id:'health',  name:'Salud',       icon:'💊', color:'#1D9E75', bg:'#E1F5EE'},
-  {id:'fun',     name:'Ocio',        icon:'🎮', color:'#534AB7', bg:'#EEEDFE'},
-  {id:'clothes', name:'Ropa',        icon:'👕', color:'#993556', bg:'#FBEAF0'},
-  {id:'edu',     name:'Educación',   icon:'📚', color:'#639922', bg:'#EAF3DE'},
-  {id:'other',   name:'Otro',        icon:'📦', color:'#888780', bg:'#f0eeea'},
+  {id:'food',    name:'Comida',     icon:'🍔', color:'#D85A30', bg:'#FAECE7'},
+  {id:'transport',name:'Transporte',icon:'🚌', color:'#BA7517', bg:'#FAEEDA'},
+  {id:'home',    name:'Hogar',      icon:'🏠', color:'#185FA5', bg:'#E6F1FB'},
+  {id:'health',  name:'Salud',      icon:'💊', color:'#1D9E75', bg:'#E1F5EE'},
+  {id:'fun',     name:'Ocio',       icon:'🎮', color:'#534AB7', bg:'#EEEDFE'},
+  {id:'clothes', name:'Ropa',       icon:'👕', color:'#993556', bg:'#FBEAF0'},
+  {id:'edu',     name:'Educación',  icon:'📚', color:'#639922', bg:'#EAF3DE'},
+  {id:'other',   name:'Otro',       icon:'📦', color:'#888780', bg:'#f0eeea'},
 ];
-
-// Emojis predefinidos para el picker del modal
-const EMOJI_OPTS = [
-  '🍔','🍕','🍜','☕','🛒','🚌','🚗','✈️',
-  '🏠','💡','💊','🏋️','🎮','🎬','📚','👕',
-  '💳','💰','🎁','🔧','🐾','🌱','🍷','📦',
-];
-
+const EMOJI_OPTS = ['🍔','🍕','🍜','☕','🛒','🚌','🚗','✈️','🏠','💡','💊','🏋️','🎮','🎬','📚','👕','💳','💰','🎁','🔧','🐾','🌱','🍷','📦'];
 const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 
 let transactions = [];
@@ -623,267 +275,206 @@ let selectedCat = 'food';
 let filter = 'all';
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
-
-// Estado del modal de edición
 let editingId = null;
 let editingEmoji = null;
 
 function loadData() {
-  try {
-    const raw = localStorage.getItem('gastos_txs');
-    if (raw) transactions = JSON.parse(raw);
-  } catch(e) { transactions = []; }
+  try { const r = localStorage.getItem('gastos_txs'); if(r) transactions = JSON.parse(r); } catch(e){ transactions=[]; }
 }
-
 function saveData() {
-  try { localStorage.setItem('gastos_txs', JSON.stringify(transactions)); } catch(e) {}
+  try { localStorage.setItem('gastos_txs', JSON.stringify(transactions)); } catch(e){}
 }
-
 function fmt(n) {
-  return '$' + Math.abs(n).toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+  return '$' + Math.abs(n).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:2});
 }
-
 function changeMonth(d) {
   currentMonth += d;
-  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-  if (currentMonth < 0)  { currentMonth = 11; currentYear--; }
+  if(currentMonth > 11){ currentMonth=0; currentYear++; }
+  if(currentMonth < 0){ currentMonth=11; currentYear--; }
   render();
 }
-
 function setType(t) {
   currentType = t;
-  document.getElementById('btnExpense').className = 'type-btn' + (t === 'expense' ? ' active-expense' : '');
-  document.getElementById('btnIncome').className  = 'type-btn' + (t === 'income'  ? ' active-income'  : '');
+  document.getElementById('btnExpense').className = 'type-btn'+(t==='expense'?' active-expense':'');
+  document.getElementById('btnIncome').className  = 'type-btn'+(t==='income'?' active-income':'');
 }
-
 function setFilter(f) {
   filter = f;
-  document.getElementById('fAll').className     = 'filter-btn' + (f === 'all'     ? ' on' : '');
-  document.getElementById('fExpense').className = 'filter-btn' + (f === 'expense' ? ' on' : '');
-  document.getElementById('fIncome').className  = 'filter-btn' + (f === 'income'  ? ' on' : '');
+  document.getElementById('fAll').className     = 'filter-btn'+(f==='all'?' on':'');
+  document.getElementById('fExpense').className = 'filter-btn'+(f==='expense'?' on':'');
+  document.getElementById('fIncome').className  = 'filter-btn'+(f==='income'?' on':'');
   renderList();
 }
-
 function renderCats() {
-  const g = document.getElementById('catGrid');
-  g.innerHTML = CATS.map(c => {
-    const active = selectedCat === c.id;
-    return `<div class="cat-pill${active ? ' active' : ''}"
-      style="color:${c.color};--pill-bg:${c.bg};${active ? 'background:'+c.bg+';' : ''}"
-      onclick="selCat('${c.id}')">
-      <span class="cat-icon">${c.icon}</span>
-      <span class="cat-name">${c.name}</span>
-    </div>`;
+  document.getElementById('catGrid').innerHTML = CATS.map(c => {
+    const a = selectedCat===c.id;
+    return `<div class="cat-pill${a?' active':''}" style="color:${c.color};--pill-bg:${c.bg};${a?'background:'+c.bg+';':''}" onclick="selCat('${c.id}')">
+      <span class="cat-icon">${c.icon}</span><span class="cat-name">${c.name}</span></div>`;
   }).join('');
 }
-
-function selCat(id) {
-  selectedCat = id;
-  renderCats();
-}
-
+function selCat(id){ selectedCat=id; renderCats(); }
 function getMonthTxs() {
-  return transactions.filter(t => {
-    const d = new Date(t.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
+  return transactions.filter(t => { const d=new Date(t.date); return d.getMonth()===currentMonth && d.getFullYear()===currentYear; });
 }
-
 function render() {
-  document.getElementById('monthLabel').textContent = MONTHS[currentMonth] + ' ' + currentYear;
-
+  document.getElementById('monthLabel').textContent = MONTHS[currentMonth]+' '+currentYear;
   const txs = getMonthTxs();
-  const income  = txs.filter(t => t.type === 'income').reduce((s,t) => s + t.amount, 0);
-  const expense = txs.filter(t => t.type === 'expense').reduce((s,t) => s + t.amount, 0);
+  const income  = txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   const balance = income - expense;
-
   document.getElementById('totalIncome').textContent  = fmt(income);
   document.getElementById('totalExpense').textContent = fmt(expense);
-  document.getElementById('balanceAmt').textContent   = (balance >= 0 ? '+' : '-') + fmt(balance);
-  document.getElementById('balanceSub').textContent   = txs.length === 0
-    ? 'Sin movimientos aún'
-    : txs.length + ' movimiento' + (txs.length !== 1 ? 's' : '');
-
+  document.getElementById('balanceAmt').textContent   = (balance>=0?'+':'-')+fmt(balance);
+  document.getElementById('balanceSub').textContent   = txs.length===0 ? 'Sin movimientos aún' : txs.length+' movimiento'+(txs.length!==1?'s':'');
   const bd = document.getElementById('catBreakdown');
-  const expTxs = txs.filter(t => t.type === 'expense');
-  if (expTxs.length > 0) {
-    bd.style.display = 'block';
-    const totByCat = {};
-    expTxs.forEach(t => { totByCat[t.cat] = (totByCat[t.cat] || 0) + t.amount; });
-    const max = Math.max(...Object.values(totByCat), 1);
-    const rows = Object.entries(totByCat).sort((a,b) => b[1] - a[1]);
-    document.getElementById('barRows').innerHTML = rows.map(([cid, amt]) => {
-      const c = CATS.find(x => x.id === cid) || CATS[7];
-      const pct = Math.round((amt / max) * 100);
-      return `<div class="bar-row">
-        <span class="bar-label">${c.icon} ${c.name}</span>
-        <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${c.color}"></div></div>
-        <span class="bar-val" style="color:${c.color}">${fmt(amt)}</span>
-      </div>`;
+  const expTxs = txs.filter(t=>t.type==='expense');
+  if(expTxs.length>0){
+    bd.style.display='block';
+    const totByCat={};
+    expTxs.forEach(t=>{ totByCat[t.cat]=(totByCat[t.cat]||0)+t.amount; });
+    const max=Math.max(...Object.values(totByCat),1);
+    document.getElementById('barRows').innerHTML = Object.entries(totByCat).sort((a,b)=>b[1]-a[1]).map(([cid,amt])=>{
+      const c=CATS.find(x=>x.id===cid)||CATS[7];
+      return `<div class="bar-row"><span class="bar-label">${c.icon} ${c.name}</span>
+        <div class="bar-track"><div class="bar-fill" style="width:${Math.round(amt/max*100)}%;background:${c.color}"></div></div>
+        <span class="bar-val" style="color:${c.color}">${fmt(amt)}</span></div>`;
     }).join('');
-  } else {
-    bd.style.display = 'none';
-  }
-
+  } else { bd.style.display='none'; }
   renderList();
 }
-
 function renderList() {
-  const txs = getMonthTxs()
-    .filter(t => filter === 'all' || t.type === filter)
-    .sort((a,b) => b.date - a.date);
-
+  const txs = getMonthTxs().filter(t=>filter==='all'||t.type===filter).sort((a,b)=>b.date-a.date);
   const el = document.getElementById('txList');
-  if (txs.length === 0) {
-    el.innerHTML = '<div class="empty"><span>💸</span>Sin movimientos en este período</div>';
-    return;
-  }
-  el.innerHTML = txs.map(t => {
-    const c = CATS.find(x => x.id === t.cat) || CATS[7];
-    // Usa emoji personalizado si existe, sino el de la categoría
-    const icon = t.customEmoji || c.icon;
-    const d = new Date(t.date);
-    const dateStr = d.getDate() + '/' + (d.getMonth() + 1);
-    const sign = t.type === 'expense' ? '-' : '+';
+  if(txs.length===0){ el.innerHTML='<div class="empty"><span>💸</span>Sin movimientos en este período</div>'; return; }
+  el.innerHTML = txs.map(t=>{
+    const c=CATS.find(x=>x.id===t.cat)||CATS[7];
+    const icon=t.customEmoji||c.icon;
+    const d=new Date(t.date);
+    const sign=t.type==='expense'?'-':'+';
     return `<div class="tx-item">
       <div class="tx-icon" style="background:${c.bg}">${icon}</div>
       <div class="tx-info">
-        <div class="tx-desc">${t.desc || c.name}</div>
-        <div class="tx-meta">${dateStr} · ${c.name}</div>
+        <div class="tx-desc">${t.desc||c.name}</div>
+        <div class="tx-meta">${d.getDate()}/${d.getMonth()+1} · ${c.name}</div>
       </div>
-      <span class="tx-amount ${t.type === 'expense' ? 'neg' : 'pos'}">${sign}${fmt(t.amount)}</span>
+      <span class="tx-amount ${t.type==='expense'?'neg':'pos'}">${sign}${fmt(t.amount)}</span>
       <div class="tx-actions">
-        <button class="tx-edit" onclick="openEdit(${t.id})" title="Editar">✏️</button>
-        <button class="tx-del" onclick="delTx(${t.id})" title="Eliminar">✕</button>
-      </div>
-    </div>`;
+        <button class="tx-edit" onclick="openEdit(${t.id})">✏️</button>
+        <button class="tx-del" onclick="delTx(${t.id})">✕</button>
+      </div></div>`;
   }).join('');
 }
-
 function addTransaction() {
   const amtRaw = document.getElementById('amountInput').value;
   const amt = parseFloat(amtRaw);
   const desc = document.getElementById('descInput').value.trim();
-
-  if (!amtRaw || isNaN(amt) || amt <= 0) {
-    document.getElementById('amountInput').focus();
-    return;
-  }
-
-  transactions.push({
-    id: Date.now(),
-    type: currentType,
-    amount: amt,
-    cat: selectedCat,
-    desc: desc,
-    date: Date.now(),
-    customEmoji: null,
-  });
-
+  if(!amtRaw||isNaN(amt)||amt<=0){ document.getElementById('amountInput').focus(); return; }
+  transactions.push({ id:Date.now(), type:currentType, amount:amt, cat:selectedCat, desc, date:Date.now(), customEmoji:null });
   saveData();
-  document.getElementById('amountInput').value = '';
-  document.getElementById('descInput').value = '';
+  document.getElementById('amountInput').value='';
+  document.getElementById('descInput').value='';
   render();
 }
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') {
-    const active = document.activeElement;
-    if (active && (active.id === 'amountInput' || active.id === 'descInput')) {
-      addTransaction();
-    }
-    if (active && (active.id === 'editDesc' || active.id === 'editCustomEmoji')) {
-      saveEdit();
-    }
-  }
-  if (e.key === 'Escape') {
-    closeModalDirect();
-  }
-});
-
+let deletingId = null;
 function delTx(id) {
-  if (confirm('¿Eliminar este movimiento?')) {
-    transactions = transactions.filter(t => t.id !== id);
-    saveData();
-    render();
+  deletingId = id;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function confirmDelete() {
+  if(deletingId !== null){
+    transactions = transactions.filter(t=>t.id!==deletingId);
+    saveData(); render();
   }
+  deletingId = null;
+  document.getElementById('confirmModal').classList.remove('open');
+}
+function cancelDelete() {
+  deletingId = null;
+  document.getElementById('confirmModal').classList.remove('open');
 }
 
 /* ─── EDICIÓN ─── */
-
 function openEdit(id) {
-  const tx = transactions.find(t => t.id === id);
-  if (!tx) return;
-
+  const tx = transactions.find(t=>t.id===id); if(!tx) return;
   editingId = id;
-  const c = CATS.find(x => x.id === tx.cat) || CATS[7];
-  editingEmoji = tx.customEmoji || c.icon;
-
-  document.getElementById('editDesc').value = tx.desc || '';
+  const c = CATS.find(x=>x.id===tx.cat)||CATS[7];
+  editingEmoji = tx.customEmoji||c.icon;
+  document.getElementById('editAmount').value = tx.amount;
+  document.getElementById('editDesc').value = tx.desc||'';
   document.getElementById('editCustomEmoji').value = '';
-
-  // Renderizar picker de emojis
   const picker = document.getElementById('emojiPicker');
-  picker.innerHTML = EMOJI_OPTS.map(e =>
-    `<div class="emoji-opt${editingEmoji === e ? ' selected' : ''}" onclick="selectEmoji('${e}')">${e}</div>`
-  ).join('');
-
+  picker.innerHTML = EMOJI_OPTS.map(e=>`<div class="emoji-opt${editingEmoji===e?' selected':''}" onclick="selectEmoji('${e}')">${e}</div>`).join('');
   document.getElementById('editModal').classList.add('open');
-
-  // Escucha cambios en el input custom
-  document.getElementById('editCustomEmoji').oninput = function() {
-    const val = this.value.trim();
-    if (val) {
-      editingEmoji = val;
-      // Deselecciona todos los del picker
-      picker.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
-    }
+  document.getElementById('editCustomEmoji').oninput = function(){
+    const val=this.value.trim();
+    if(val){ editingEmoji=val; picker.querySelectorAll('.emoji-opt').forEach(el=>el.classList.remove('selected')); }
   };
-
-  setTimeout(() => document.getElementById('editDesc').focus(), 300);
+  setTimeout(()=>document.getElementById('editAmount').focus(),300);
 }
-
 function selectEmoji(emoji) {
-  editingEmoji = emoji;
-  document.getElementById('editCustomEmoji').value = '';
-  const picker = document.getElementById('emojiPicker');
-  picker.querySelectorAll('.emoji-opt').forEach(el => {
-    el.classList.toggle('selected', el.textContent === emoji);
-  });
+  editingEmoji=emoji;
+  document.getElementById('editCustomEmoji').value='';
+  document.getElementById('emojiPicker').querySelectorAll('.emoji-opt').forEach(el=>el.classList.toggle('selected',el.textContent===emoji));
 }
-
 function saveEdit() {
-  if (!editingId) return;
-  const tx = transactions.find(t => t.id === editingId);
-  if (!tx) return;
-
+  if(!editingId) return;
+  const tx = transactions.find(t=>t.id===editingId); if(!tx) return;
+  const newAmt = parseFloat(document.getElementById('editAmount').value);
   const newDesc = document.getElementById('editDesc').value.trim();
   const customVal = document.getElementById('editCustomEmoji').value.trim();
-  const finalEmoji = customVal || editingEmoji;
+  if(!isNaN(newAmt) && newAmt>0) tx.amount = newAmt;
+  if(newDesc) tx.desc = newDesc;
+  tx.customEmoji = customVal||editingEmoji;
+  saveData(); closeModalDirect(); render();
+}
+function closeModal(e){ if(e.target===document.getElementById('editModal')) closeModalDirect(); }
+function closeModalDirect(){ document.getElementById('editModal').classList.remove('open'); editingId=null; }
 
-  if (newDesc) tx.desc = newDesc;
-  tx.customEmoji = finalEmoji;
-
-  saveData();
-  closeModalDirect();
-  render();
+/* ─── BACKUP ─── */
+function exportBackup() {
+  const data = JSON.stringify(transactions, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gastos_backup_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importBackup(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try {
+      const data = JSON.parse(ev.target.result);
+      if(Array.isArray(data)){
+        transactions = data; saveData(); render();
+        showToast('✅ Backup restaurado: '+data.length+' movimientos');
+      } else { showToast('⚠️ Archivo inválido'); }
+    } catch(err){ showToast('⚠️ Error al leer el archivo'); }
+  };
+  reader.readAsText(file);
+  e.target.value='';
 }
 
-function closeModal(event) {
-  // Cierra solo si se hizo click en el overlay, no en el modal
-  if (event.target === document.getElementById('editModal')) {
-    closeModalDirect();
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 2800);
+}
+
+document.addEventListener('keydown', function(e){
+  if(e.key==='Enter'){
+    const a=document.activeElement;
+    if(a&&(a.id==='amountInput'||a.id==='descInput')) addTransaction();
+    if(a&&(a.id==='editAmount'||a.id==='editDesc'||a.id==='editCustomEmoji')) saveEdit();
   }
-}
+  if(e.key==='Escape') closeModalDirect();
+});
 
-function closeModalDirect() {
-  document.getElementById('editModal').classList.remove('open');
-  editingId = null;
-}
-
-loadData();
-renderCats();
-render();
+loadData(); renderCats(); render();
 </script>
+
 </body>
 </html>
