@@ -27,7 +27,7 @@
 
 ```
 /* Topbar */
-.topbar { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 12px; background:var(--bg); position:sticky; top:0; z-index:10; }
+.topbar { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 12px; background:var(--bg); position:sticky; top:0; z-index:10; flex-wrap:nowrap; gap:8px; }
 .topbar h1 { font-size:22px; font-weight:600; letter-spacing:-0.5px; }
 .month-nav { display:flex; align-items:center; gap:6px; }
 .month-nav button { background:var(--surface); border:1px solid var(--border); border-radius:8px; width:32px; height:32px; font-size:16px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; }
@@ -222,6 +222,10 @@
       <input type="text" id="editDesc" placeholder="Descripción">
     </div>
     <div class="modal-field">
+      <label>Fecha</label>
+      <input type="date" id="editDate">
+    </div>
+    <div class="modal-field">
       <label>Emoji</label>
       <div class="emoji-picker" id="emojiPicker"></div>
       <div class="modal-custom-emoji">
@@ -401,6 +405,8 @@ function openEdit(id) {
   editingEmoji = tx.customEmoji||c.icon;
   document.getElementById('editAmount').value = tx.amount;
   document.getElementById('editDesc').value = tx.desc||'';
+  const txDate = new Date(tx.date);
+  document.getElementById('editDate').value = txDate.toISOString().slice(0,10);
   document.getElementById('editCustomEmoji').value = '';
   const picker = document.getElementById('emojiPicker');
   picker.innerHTML = EMOJI_OPTS.map(e=>`<div class="emoji-opt${editingEmoji===e?' selected':''}" onclick="selectEmoji('${e}')">${e}</div>`).join('');
@@ -425,6 +431,8 @@ function saveEdit() {
   if(!isNaN(newAmt) && newAmt>0) tx.amount = newAmt;
   if(newDesc) tx.desc = newDesc;
   tx.customEmoji = customVal||editingEmoji;
+  const newDate = document.getElementById('editDate').value;
+  if(newDate) tx.date = new Date(newDate).setHours(12,0,0,0);
   saveData(); closeModalDirect(); render();
 }
 function closeModal(e){ if(e.target===document.getElementById('editModal')) closeModalDirect(); }
