@@ -22,10 +22,39 @@
       --border: rgba(0,0,0,0.1);
       --text: #1a1a1a; --text-sec: #666; --text-ter: #aaa;
     }
-    html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px; -webkit-font-smoothing:antialiased; }
-    .app { max-width:480px; margin:0 auto; padding:0 0 100px; min-height:100vh; }
+    .dark {
+      --coral-light: #3D1A10;
+      --teal-light: #0D2E22;
+      --amber-light: #2E1E05;
+      --purple-light: #1A1840;
+      --green-light: #1A2608;
+      --blue-light: #0A1E35;
+      --pink-light: #2E0F1A;
+      --bg: #111113; --surface: #1C1C1E;
+      --border: rgba(255,255,255,0.1);
+      --text: #F2F2F7; --text-sec: #98989F; --text-ter: #48484A;
+    }
+    .dark .topbar { background: #111113; }
+    .dark .month-nav button { background: #2C2C2E; }
+    .dark .form-row input { background: #2C2C2E; color: var(--text); }
+    .dark .form-row input:focus { background: #3A3A3C; }
+    .dark .cat-pill { background: #2C2C2E; }
+    .dark .modal { background: #1C1C1E; }
+    .dark .modal-field input { background: #2C2C2E; color: var(--text); }
+    .dark .modal-field input:focus { background: #3A3A3C; }
+    .dark .emoji-opt { background: #2C2C2E; }
+    .dark .modal-custom-emoji input { background: #2C2C2E; color: var(--text); }
+    .dark .confirm-box { background: #1C1C1E; }
+    .dark .filter-btn { color: var(--text-sec); }
+    .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
 
 ```
+/* Botón modo oscuro */
+.dark-btn { background:none; border:1px solid var(--border); border-radius:8px; width:32px; height:32px; font-size:16px; cursor:pointer; color:var(--text); display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; flex-shrink:0; }
+.dark-btn:active { opacity:0.7; }
+html, body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; font-size:16px; -webkit-font-smoothing:antialiased; }
+.app { max-width:480px; margin:0 auto; padding:0 0 100px; min-height:100vh; }
+
 /* Topbar */
 .topbar { display:flex; align-items:center; justify-content:space-between; padding:20px 20px 12px; background:var(--bg); position:sticky; top:0; z-index:10; flex-wrap:nowrap; gap:8px; }
 .topbar h1 { font-size:22px; font-weight:600; letter-spacing:-0.5px; }
@@ -152,10 +181,13 @@
 <div class="app">
   <div class="topbar">
     <h1>Mis Gastos</h1>
-    <div class="month-nav">
-      <button onclick="changeMonth(-1)">&#8249;</button>
-      <span id="monthLabel"></span>
-      <button onclick="changeMonth(1)">&#8250;</button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button class="dark-btn" id="darkBtn" onclick="toggleDark()" title="Modo oscuro">🌙</button>
+      <div class="month-nav">
+        <button onclick="changeMonth(-1)">&#8249;</button>
+        <span id="monthLabel"></span>
+        <button onclick="changeMonth(1)">&#8250;</button>
+      </div>
     </div>
   </div>
 
@@ -481,7 +513,23 @@ document.addEventListener('keydown', function(e){
   if(e.key==='Escape') closeModalDirect();
 });
 
-loadData(); renderCats(); render();
+// Modo oscuro
+function toggleDark() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  localStorage.setItem('gastos_dark', isDark ? '1' : '0');
+  document.getElementById('darkBtn').textContent = isDark ? '☀️' : '🌙';
+}
+function initDark() {
+  const saved = localStorage.getItem('gastos_dark');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved !== null ? saved === '1' : prefersDark;
+  if(isDark) {
+    document.documentElement.classList.add('dark');
+    document.getElementById('darkBtn').textContent = '☀️';
+  }
+}
+
+loadData(); initDark(); renderCats(); render();
 </script>
 
 </body>
